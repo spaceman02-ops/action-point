@@ -1,0 +1,105 @@
+{
+  "name": "Fine Clothing",
+  "type": "equipment",
+  "img": "icons/equipment/chest/robe-layered-teal.webp",
+  "data": {
+    "description": {
+      "value": "<p>Elegent cloth designed to signify wealth and status in society.</p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "PHB pg.222",
+    "quantity": 1,
+    "weight": 6,
+    "price": 30,
+    "attuned": false,
+    "equipped": false,
+    "rarity": "",
+    "identified": true,
+    "activation": {
+      "type": "",
+      "cost": 0,
+      "condition": ""
+    },
+    "duration": {
+      "value": null,
+      "units": ""
+    },
+    "target": {
+      "value": null,
+      "width": null,
+      "units": "",
+      "type": ""
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": ""
+    },
+    "uses": {
+      "value": 0,
+      "max": "0",
+      "per": ""
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "armour": {
+      "value": 10,
+      "type": "armour",
+      "subType": "cloth",
+      "ac": 0,
+      "fort": 0,
+      "ref": 0,
+      "wil": 0,
+      "dex": null,
+      "movePen": false,
+      "movePenValue": 0,
+      "skillCheck": false,
+      "skillCheckValue": 0,
+      "damageRes": {
+        "parts": []
+      }
+    },
+    "hp": {
+      "value": 0,
+      "max": 0,
+      "dt": null,
+      "conditions": ""
+    },
+    "macro": {
+      "type": "script",
+      "scope": "global",
+      "launchOrder": "off",
+      "command": "",
+      "author": ""
+    },
+    "level": null,
+    "speed": {
+      "value": null,
+      "conditions": ""
+    },
+    "strength": 0,
+    "stealth": false,
+    "proficient": true
+  },
+  "effects": [],
+  "flags": {
+    "cf": {
+      "id": "temp_pclik18cys",
+      "path": "Cloth Armour",
+      "color": "#000000"
+    },
+    "core": {
+      "sourceId": "Compendium.dnd4e.srd_armour.WLgMmkXD3u1t8fmQ"
+    },
+    "exportSource": {
+      "world": "hermitage",
+      "system": "dnd4e",
+      "coreVersion": "9.269",
+      "systemVersion": "0.2.73"
+    }
+  }
+}
