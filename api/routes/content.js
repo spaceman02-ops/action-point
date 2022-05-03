@@ -1,10 +1,10 @@
 import express from "express";
-import power from "../../data/data_storage/foundry_datastores/powers_output.json" assert { "type": "json" };
-import weapon from "../../data/data_storage/foundry_datastores/weapon_output.json" assert { "type": "json" };
-import armor from "../../data/data_storage/foundry_datastores/armor_output.json" assert { "type": "json" };
-import monster from "../../data/data_storage/foundry_datastores/monsters_output.json" assert { "type": "json" };
-import feat from "../../data/data_storage/foundry_datastores/feat_output.json" assert { "type": "json" };
-import items from "../../data/data_storage/foundry_datastores/magic_item_output.json" assert { "type": "json" };
+import power from "../../parsing/output/powers_output.json" assert { "type": "json" };
+import weapon from "../../parsing/output/weapon_output.json" assert { "type": "json" };
+import armor from "../../parsing/output/armor_output.json" assert { "type": "json" };
+import monster from "../../parsing/output/monsters_output.json" assert { "type": "json" };
+import feat from "../../parsing/output/feat_output.json" assert { "type": "json" };
+import items from "../../parsing/output/magic_item_output.json" assert { "type": "json" };
 const router = express.Router();
 
 async function createContentRoute(content, path) {
