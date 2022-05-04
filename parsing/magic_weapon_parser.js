@@ -1,53 +1,89 @@
-import magic_item from "../../../data_storage/general_datastores/magic_item_template.json" assert { type: "json" };
-import all_items from "../../../data_storage/general_datastores/magic_items.json" assert { type: "json" };
+import weapons from "./templates/weapon_templates.json" assert { type: "json" };
+import magic_weapons from "./collections/magic_weapon_collection.json" assert { type: "json" };
+import config from "./utilities/dnd4ebeta_config.js"
 import fs from "fs";
-
 let output = [];
-for (let j = 0; j < all_items.length; j++) {
-  let combined = JSON.parse(JSON.stringify(magic_item));
+const { weaponGroup, weaponTypes } = config;
+for (let j = 0; j < magic_weapons.length; j++) {
+  let magicWeapon = magic_weapons[j];
+  for (let i = 0; i < weapons.length; i++) {
+    let combined = JSON.parse(JSON.stringify(weapons[i]));
+    let cWeaponKeywords = [];
+    for (let [key, value] of Object.entries(combined.data.weaponGroup)){
+      if (value){
+        cWeaponKeywords.push(weaponGroup[key].toLowerCase());
+      }
+    }
 
-  combined.data.price = Number(
-    magicWeapon.cost
-      .split("")
-      .filter((i) => !isNaN(i))
-      .join("")
-  );
+    cWeaponKeywords.push(weaponTypes[combined.data.weaponType].toLowerCase());
+    let { group } = magicWeapon;
+    group = group.split(/,\s|or/).map(word => word.toLowerCase().trim());
+    if (!cWeaponKeywords.some(word => group.includes(word))) {
+      if (!group.includes("any")) {
+      continue;
+      }
+    }
+    
+    combined.data.price = Number(
+      magicWeapon.cost
+        .split("")
+        .filter((i) => !isNaN(i))
+        .join("")
+    );
 
-  combined.data.rarity = magicWeapon.class;
-  combined.data.level = magicWeapon.level;
-  combined.data.enhance = makeNumber(magicWeapon.bonus);
-  let newName;
-  if (magicWeapon.name.includes("Weapon")) {
-    newName = magicWeapon.name.replace(/weapon/gi, combined.name);
-  } else {
-    newName = `${magicWeapon.name} ${combined.name}`;
+    combined.data.rarity = magicWeapon.class;
+    combined.data.level = magicWeapon.level;
+    combined.data.enhance = Number(
+      magicWeapon.bonus
+        .split("")
+        .filter((i) => !isNaN(i))
+        .join("")
+    );
+    let newName;
+    if (magicWeapon.name.includes("Weapon")) {
+      newName = magicWeapon.name.replace(/weapon/gi, combined.name);
+    } else {
+      newName = `${magicWeapon.name} ${combined.name}`;
+    }
+    combined.name = newName;
+
+    let critDie = magicWeapon.critical.match(/d\d+/gi);
+    let crit = ``;
+    if (critDie) {
+      crit = critDie.map((i) => `(@enhance)${i}`).join(" + ");
+    } else {
+      crit = `(@enhance)d6`;
+    }
+    combined.data.critDamageForm = crit;
+    let description = "";
+    let powers = "";
+    let flavor = "";
+    let props = "";
+    if (magicWeapon.props != "") {
+      props = `<b>Properties:</b><br> ${magicWeapon.props.join("<br>")}`;
+    }
+    if (magicWeapon.powers != "") {
+      let fmtPowers = "";
+      for (let i = 0; i < magicWeapon.powers.length; i++) {
+        for (let [key, value] of Object.entries(magicWeapon.powers)) {
+          if (value.length > 0) {
+            fmtPowers += `<b>${key}</b>: ${value}<br>`;
+          }
+        }
+      }
+      powers = `<b>Powers:</b><br> ${fmtPowers}`;
+    }
+    if (magicWeapon.flavor != "") {
+      flavor = `<b>Flavor:</b><br> ${magicWeapon.flavor}`;
+    }
+    description = `${flavor}<br>${props}<br>${powers}`;
+    description = description
+      .replaceAll("\\n", "<br>")
+      .replaceAll("\n", "<br>");
+    combined.data.description.value = description;
+    output.push(combined);
   }
-  combined.name = newName;
-
-  let critDie = magicWeapon.critical.match(/d\d+/gi);
-  let crit = ``;
-  if (critDie) {
-    crit = critDie.map((i) => `(@enhance)${i}`).join(" + ");
-  } else {
-    crit = `(@enhance)d6`;
-  }
-  combined.data.critDamageForm = crit;
-  let powersDescription = "";
-  let propertyDescription = "";
-  if (magicWeapon.powers.length > 1)
-    powersDescription = `<b>Powers</b>:<br>${magicWeapon.powers}`;
-  if (magicWeapon.properties.length > 1) {
-    propertyDescription = `<b>Properties</b> <br> ${magicWeapon.properties}`;
-  }
-  let description = `<i>${magicWeapon.flavor}<i><br>${combined.data.chatFlavor}<br>${powersDescription}<br>${propertyDescription}`;
-  description = description.replaceAll("\\n", "<br>").replaceAll("\n", "<br>");
-
-  combined.data.description.value = description;
-  output.push(combined);
 }
-
+console.log(output.length)
 let data = JSON.stringify(output);
-fs.writeFileSync(
-  "../../../data_storage/foundry_datastores/weapon_output.json",
-  data
-);
+fs.writeFileSync("./output/magic_weapon_output1.json", data);

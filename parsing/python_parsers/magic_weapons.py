@@ -147,40 +147,14 @@ def powers_format(soup_in):
         powers_list.append(copy.deepcopy(power_item))
 
     # Loop though power list to create all the tags
-    powers_out = '\n'
-    for power in powers_list:
-        id += 1
-        if power["action"] != '':
-            powers_out += f'{power["action"]}\n'
-        if power["keywords"] != '':
-            powers_out += f'{power["keywords"]}\n'
-        if power["name"] != '':
-            powers_out += f'{power["name"]}\n'
-        if power["range"] != '':
-            powers_out += f'{power["range"]}\n'
-        if power["recharge"] != '':
-            powers_out += f'{power["recharge"]}\n'
-        if power["shortdescription"] != '':
-            powers_out += f'{power["shortdescription"]}\n'
-    powers_out += ''
-    return re.sub('^\s*$', '', powers_out)
+    return powers_list
 
 def props_format(props_in):
     id = 0
 
     # Split the input at each \n into a list of properties
     props_list = re.split(r'\\n', props_in)
-
-    # Loop though properties list to create all the tags
-    props_out = '\n'
-    for p in props_list:
-        id += 1
-        entrry_id = "00000"[0:len("00000")-len(str(id))] + str(id)
-        props_out += f'{entrry_id}\n'
-        props_out += f'{p}\n'
-        props_out += f'{entrry_id}\n'
-    props_out += ''
-    return re.sub('^\s*$', '', props_out)
+    return props_list
 
 if __name__ == '__main__':
 
@@ -322,26 +296,6 @@ if __name__ == '__main__':
     print(str(len(export_list)) + " export entries.")
 
     outputJSON = json.dumps(export_list, indent = 4)
-    f = open("jsonout1.json", "w")
+    f = open("../collections/magic_weapon_collection.json", "w")
     f.write(outputJSON)
     f.close()
-    # Write FG XML database files
-    write_id = write_db('export/magic_weapons/data/db.xml', export_list)
-
-    print(str(write_id) + " module entries written. Job done.")
-
-    try:
-        os.remove('export/magic_weapons/4E_Magic_Weapons.mod')
-    except FileNotFoundError:
-        print("Cleanup not needed.")
-    try:
-        shutil.make_archive('export/magic_weapons/4E_Magic_Weapons', 'zip', 'export/magic_weapons/data/')
-        os.rename('export/magic_weapons/4E_Magic_Weapons.zip', 'export/magic_weapons/4E_Magic_Weapons.mod')
-        print("\nDatabase added and module generated!")
-        print("You can find it in the 'export\\magic_weapons' folder\n")
-    except Exception as e:
-        print(f"Error creating zipped .mod file:\n{e}")
-        print("\nManually zip the contents of the 'export\\magic_weapon\\data' folder to create the mod.")
-        print("Rename the complete filename (including path) to '4E_Magic_Weapons.mod'.\n")
-
-    input('Press enter to close.')

@@ -1,5 +1,5 @@
-import magic_armors from "../../../data_storage/general_datastores/magic_armors.json" assert { type: "json" };
-import armor from "../../../data_storage/general_datastores/armor.json" assert { type: "json" };
+import magic_armors from "./collections/magic_armor_collection.json" assert { type: "json" };
+import armor from "./templates/armor_templates.json" assert { type: "json" };
 import fs from "fs";
 
 const armorScaling = {
@@ -74,11 +74,7 @@ for (let j = 0; j < magic_armors.length; j++) {
     output.push(combined);
   }
 }
-console.log(output.map((i) => [i.name, i.data.price]));
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-await wait(10000);
-output = JSON.stringify(output);
-fs.writeFileSync(
-  "../../../data_storage/foundry_datastores/armor_output.json",
-  output
-);
+await wait(1000);
+let data = JSON.stringify(output);
+fs.writeFileSync("./output/magic_armor_output.json", data);

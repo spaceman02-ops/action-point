@@ -1,6 +1,6 @@
-import magic_items from "../../../data_storage/general_datastores/magic_items.json" assert { type: "json" };
-import consumable_template from "../../../data_storage/general_datastores/consumable_template.json" assert { type: "json" };
-import config from "./dnd4ebeta_config.js";
+import magic_items from "./collections/magic_item_collection.json" assert { type: "json" };
+import consumable_template from "./templates/consumable_template.json" assert { type: "json" };
+import config from "./utilities/dnd4ebeta_config.js";
 import fs from "fs";
 
 let output = [];
@@ -66,6 +66,6 @@ for (let j = 0; j < magic_items.length; j++) {
 }
 let data = JSON.stringify(output);
 fs.writeFileSync(
-  "../../../data_storage/foundry_datastores/magic_item_output.json",
+  "./output/consumables_output.json",
   data
 );
