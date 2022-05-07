@@ -85,4 +85,4 @@ for (let j = 0; j < magic_weapons.length; j++) {
 }
 console.log(output.length)
 let data = JSON.stringify(output);
-fs.writeFileSync("./output/magic_weapon_output1.json", data);
+fs.writeFileSync("./output/magic_weapon_output.json", data);

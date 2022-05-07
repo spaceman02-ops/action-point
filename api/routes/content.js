@@ -1,6 +1,6 @@
 import express from "express";
 import power from "../../parsing/output/powers_output.json" assert { "type": "json" };
-import weapon from "../../parsing/output/weapon_output.json" assert { "type": "json" };
+import weapon from "../../parsing/output/magic_weapon_output.json" assert { "type": "json" };
 import armor from "../../parsing/output/armor_output.json" assert { "type": "json" };
 import monster from "../../parsing/output/monsters_output.json" assert { "type": "json" };
 import feat from "../../parsing/output/feat_output.json" assert { "type": "json" };
