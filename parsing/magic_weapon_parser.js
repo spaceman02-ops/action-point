@@ -17,9 +17,10 @@ for (let j = 0; j < magic_weapons.length; j++) {
 
     cWeaponKeywords.push(weaponTypes[combined.data.weaponType].toLowerCase());
     let { group } = magicWeapon;
+    let groupstr = group.toLowerCase();
     group = group.split(/,\s|or/).map(word => word.toLowerCase().trim());
     if (!cWeaponKeywords.some(word => group.includes(word))) {
-      if (!group.includes("any")) {
+      if (!groupstr.includes("any")) {
       continue;
       }
     }
@@ -59,16 +60,14 @@ for (let j = 0; j < magic_weapons.length; j++) {
     let powers = "";
     let flavor = "";
     let props = "";
-    if (magicWeapon.props != "") {
-      props = `<b>Properties:</b><br> ${magicWeapon.props.join("<br>")}`;
+    if (magicWeapon.properties != "") {
+      props = `<b>Properties:</b><br> ${magicWeapon.properties}<br>`;
     }
     if (magicWeapon.powers != "") {
       let fmtPowers = "";
       for (let i = 0; i < magicWeapon.powers.length; i++) {
-        for (let [key, value] of Object.entries(magicWeapon.powers)) {
-          if (value.length > 0) {
-            fmtPowers += `<b>${key}</b>: ${value}<br>`;
-          }
+        for (let [, value] of Object.entries(magicWeapon.powers)) {
+            fmtPowers += `${value}<br>`;
         }
       }
       powers = `<b>Powers:</b><br> ${fmtPowers}`;

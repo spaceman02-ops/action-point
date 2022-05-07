@@ -27,7 +27,6 @@ for (let j = 0; j < magic_items.length; j++) {
   );
   combined.data.rarity = magicItem.class;
   combined.data.level = magicItem.level;
-  //get enhancements
 
   for (let [key, value] of Object.entries(config.def)) {
     if (magicItem.enhancement.includes(value)) {
@@ -50,8 +49,8 @@ for (let j = 0; j < magic_items.length; j++) {
   if (magicItem.powers != "") {
     let fmtPowers = "";
     for (let i = 0; i < magicItem.powers.length; i++) {
-      for (let [key, value] of Object.entries(magicItem.powers[i])) {
-        fmtPowers += `<b>${key}</b>: ${value}<br>`;
+      for (let [, value] of Object.entries(magicItem.powers[i])) {
+        fmtPowers += `${value}<br>`;
       }
     }
     powers = `<b>Powers:</b><br> ${fmtPowers}`;

@@ -55,10 +55,8 @@ for (let j = 0; j < magic_armors.length; j++) {
     if (magicArmor.powers != "") {
       let fmtPowers = "";
       for (let i = 0; i < magicArmor.powers.length; i++) {
-        for (let [key, value] of Object.entries(magicArmor.powers)) {
-          if (value.length > 0) {
-            fmtPowers += `<b>${key}</b>: ${value}<br>`;
-          }
+        for (let [, value] of Object.entries(magicArmor.powers)) {
+          fmtPowers += `${value}<br>`;
         }
       }
       powers = `<b>Powers:</b><br> ${fmtPowers}`;
@@ -74,7 +72,5 @@ for (let j = 0; j < magic_armors.length; j++) {
     output.push(combined);
   }
 }
-const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-await wait(1000);
 let data = JSON.stringify(output);
 fs.writeFileSync("./output/magic_armor_output.json", data);
