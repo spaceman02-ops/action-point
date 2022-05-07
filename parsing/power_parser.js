@@ -2,63 +2,14 @@ import sqlite3 from "sqlite3";
 import fs from "fs";
 import {
   fullCleanText,
-} from "../../utilities/utilityFunctions.js";
+} from "./utilities/utility_functions.js";
 import {
   POWERTYPES,
   ABILITIES,
   DEFENSES,
   DAMAGETYPES,
   POWERSOURCES,
-} from "./constants.js";
-let db = new sqlite3.Database(
-  "../db/ddi.db",
-  sqlite3.OPEN_READWRITE,
-  (err) => {}
-);
-let sqlStatements = {
-  powers: {
-    import: `SELECT * FROM Power;`,
-    update: `UPDATE Power SET JSON = $data WHERE Name = $name;`,
-  },
-  feats: {
-    import: `SELECT * FROM Feat;`,
-    update: `UPDATE Feat SET JSON = $data WHERE Name = $name;`,
-  },
-  monsters: {
-    import: `SELECT * FROM Monster;`,
-    update: `UPDATE Monster SET JSON = $data WHERE Name = $name;`,
-  },
-  items: {
-    import: `SELECT * FROM Item WHERE NOT CATEGORY='Armor' AND NOT CATEGORY='Weapon' AND NOT CATEGORY='Consumable' AND NOT CATEGORY='Implement';`,
-    update: `UPDATE Item SET JSON = $data WHERE Name = $name;`,
-  },
-  armor: {
-    import: `SELECT * FROM Item WHERE CATEGORY='Armor';`,
-    update: `UPDATE Item SET JSON = $data WHERE Name = $name;`,
-  },
-  weapons: {
-    import: `SELECT * FROM Item WHERE CATEGORY='Weapon';`,
-    update: `UPDATE Item SET JSON = $data WHERE Name = $name;`,
-  },
-  implements: {
-    import: `SELECT * FROM Item WHERE CATEGORY='Implement';`,
-    update: `UPDATE Item SET JSON = $data WHERE Name = $name;`,
-  },
-};
-let powers = [];
-function startParsePower(err, row) {
-  const power = new powerParser(row, db);
-  powers.push(power.createOutput());
-  console.log(powers.length);
-}
-db.each(sqlStatements.powers.import, (err, row) => {
-  startParsePower(err, row);
-});
-
-const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-await wait(10000);
-let data = JSON.stringify(powers);
-fs.writeFileSync("powersOutput.json", data);
+} from "./utilities/constants.js";
 class powerParser {
   constructor(row, db) {
     this.row = row;
@@ -108,7 +59,6 @@ class powerParser {
       if (value.test(this.cleanText)) {
         this.range = key;
         [, this.area, this.distance] = this.cleanText.match(value);
-        //
       }
     }
   }
@@ -142,7 +92,7 @@ class powerParser {
       let types = DAMAGETYPES.filter((i) => line.includes(i));
       if (types.length < 1) types.push("damage");
       let detail = line.replace("Hit : ", "");
-      let modifier = Object.keys(abilities).filter((i) => line.includes(i));
+      let modifier = Object.keys(ABILITIES).filter((i) => line.includes(i));
       hits.push({
         dieSizes,
         dieCounts,
@@ -224,3 +174,55 @@ class powerParser {
     };
   }
 }
+
+function startParsePower(err, row) {
+  const power = new powerParser(row, db);
+  powers.push(power.createOutput());
+  console.log(powers.length);
+}
+
+let sqlStatements = {
+  powers: {
+    import: `SELECT * FROM Power;`,
+    update: `UPDATE Power SET JSON = $data WHERE Name = $name;`,
+  },
+  feats: {
+    import: `SELECT * FROM Feat;`,
+    update: `UPDATE Feat SET JSON = $data WHERE Name = $name;`,
+  },
+  monsters: {
+    import: `SELECT * FROM Monster;`,
+    update: `UPDATE Monster SET JSON = $data WHERE Name = $name;`,
+  },
+  items: {
+    import: `SELECT * FROM Item WHERE NOT CATEGORY='Armor' AND NOT CATEGORY='Weapon' AND NOT CATEGORY='Consumable' AND NOT CATEGORY='Implement';`,
+    update: `UPDATE Item SET JSON = $data WHERE Name = $name;`,
+  },
+  armor: {
+    import: `SELECT * FROM Item WHERE CATEGORY='Armor';`,
+    update: `UPDATE Item SET JSON = $data WHERE Name = $name;`,
+  },
+  weapons: {
+    import: `SELECT * FROM Item WHERE CATEGORY='Weapon';`,
+    update: `UPDATE Item SET JSON = $data WHERE Name = $name;`,
+  },
+  implements: {
+    import: `SELECT * FROM Item WHERE CATEGORY='Implement';`,
+    update: `UPDATE Item SET JSON = $data WHERE Name = $name;`,
+  },
+};
+
+let db = new sqlite3.Database(
+  "./utilities/ddi_db/ddi.db",
+  sqlite3.OPEN_READWRITE,
+  (err) => {}
+);
+let powers = [];
+db.each(sqlStatements.powers.import, (err, row) => {
+  startParsePower(err, row);
+});
+
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+await wait(2000);
+let data = JSON.stringify(powers);
+fs.writeFileSync("powersOutput.json", data);
