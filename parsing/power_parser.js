@@ -1,8 +1,6 @@
 import sqlite3 from "sqlite3";
 import fs from "fs";
-import {
-  fullCleanText,
-} from "./utilities/utility_functions.js";
+import { fullCleanText } from "./utilities/utility_functions.js";
 import {
   POWERTYPES,
   ABILITIES,
@@ -10,6 +8,7 @@ import {
   DAMAGETYPES,
   POWERSOURCES,
 } from "./utilities/constants.js";
+import template from "./templates/power_template.json" assert { type: "json" };
 class powerParser {
   constructor(row, db) {
     this.row = row;
@@ -19,6 +18,7 @@ class powerParser {
     this.processDescription();
     this.processRange();
     this.processAttacks();
+    this.processFlavor();
     this.processTargets();
     this.processDamage();
     this.processEffect();
@@ -45,7 +45,7 @@ class powerParser {
   }
   processRange() {
     const ranges = {
-      areaBurst: /area.+burst.(\d+).+within.(\d+)/im,
+      rangeBurst: /area.+burst.(\d+).+within.(\d+)/im,
       closeBurst: /close.+burst.(\d+)/im,
       closeBlast: /close.+blast.(\d+)/im,
       wall: /area.+wall.(\d+).+within.(\d+)/im,
@@ -58,7 +58,12 @@ class powerParser {
     for (const [key, value] of Object.entries(ranges)) {
       if (value.test(this.cleanText)) {
         this.range = key;
-        [, this.area, this.distance] = this.cleanText.match(value);
+        if (key == "rangeBurst" || key == "wall") {
+          [, this.area, this.distance] = this.cleanText.match(value);
+          console.log(this.range, this.area, this.distance);
+        } else {
+          this.distance = this.cleanText.match(value)[1];
+        }
       }
     }
   }
@@ -135,9 +140,9 @@ class powerParser {
     let longest = 0;
     let flavortext = ``;
     for (let i = 0; i < 5; i++) {
-      if (arrtxt[i].length > longest) {
-        flavortext = arrtxt[i];
-        longest = arrtxt[i].length;
+      if (this.arrtext[i].length > longest) {
+        flavortext = this.arrtext[i];
+        longest = this.arrtext[i].length;
       }
     }
     this.flavor = flavortext;
@@ -171,44 +176,76 @@ class powerParser {
       keywords: this.keywords,
       flavor: this.flavor,
       powerSources: this.powerSources,
+      miss: this.miss,
+      trigger: this.trigger,
+      special: this.special,
+      requirement: this.requirement,
+      sustain: this.sustain,
     };
+  }
+  createFoundry() {
+    let foundry = JSON.parse(JSON.stringify(template));
+    foundry.data.description.value = this.description;
+    foundry.name = this.name;
+    foundry.data.level = this.level;
+    foundry.data.actionType = this.action.toLowerCase().replace("-", "");
+    foundry.data.source = this.source;
+    foundry.class = this.class;
+    foundry.data.powerType = this.kind;
+    foundry.data.useType = this.usage.toLowerCase().replace("-", "");
+    foundry.data.subName = `${this.class} ${this.kind} ${this.level}`;
+    foundry.data.rangeType = this.range;
+    foundry.data.area = this.area;
+    foundry.data.range = this.distance;
+    foundry.data.effect.detail = this.effect;
+    foundry.data.target = this.targets[0];
+    foundry.data.miss.detail = this.miss;
+    foundry.data.trigger = this.trigger;
+    foundry.data.special = this.special;
+    foundry.data.requirement = this.requirement;
+    foundry.data.sustain.detail = this.sustain;
+    foundry.data.powersource = this.powerSources[0];
+    foundry.data.weaponType = "any";
+    foundry.data.weaponUse = "default";
+    foundry.data.chatFlavor = this.flavor;
+    for (let n of this.keywords) {
+      foundry.data.effectType[n] = true;
+    }
+    let outputs = [];
+    this.attacks.forEach((a, i) => {
+      let o = JSON.parse(JSON.stringify(foundry));
+      if (i == 1) {
+        o.name = o.name + " Secondary";
+        
+      }
+      if (i == 2) {
+        o.name = o.name + " Tertiary";
+        
+      }
+      o.data.attack.ability = ABILITIES[a.ability];
+      o.data.attack.def = DEFENSES[a.defense];
+      o.data.hit.isDamage = true;
+      if (this.hits[i]) {
+        o.data.hit.detail = this.hits[i].detail;
+        o.data.hit.baseDiceType = this.hits[i].dieSizes[0];
+        o.data.hit.baseQuantity = this.hits[i].dieCounts[0];
+        this.hits[i].types.forEach((t) => (o.data.damageType[t] = true));
+      }
+      outputs.push(o);
+    });
+    return outputs;
   }
 }
 
 function startParsePower(err, row) {
   const power = new powerParser(row, db);
-  powers.push(power.createOutput());
-  console.log(powers.length);
+  powers.push(...power.createFoundry());
 }
 
 let sqlStatements = {
   powers: {
     import: `SELECT * FROM Power;`,
     update: `UPDATE Power SET JSON = $data WHERE Name = $name;`,
-  },
-  feats: {
-    import: `SELECT * FROM Feat;`,
-    update: `UPDATE Feat SET JSON = $data WHERE Name = $name;`,
-  },
-  monsters: {
-    import: `SELECT * FROM Monster;`,
-    update: `UPDATE Monster SET JSON = $data WHERE Name = $name;`,
-  },
-  items: {
-    import: `SELECT * FROM Item WHERE NOT CATEGORY='Armor' AND NOT CATEGORY='Weapon' AND NOT CATEGORY='Consumable' AND NOT CATEGORY='Implement';`,
-    update: `UPDATE Item SET JSON = $data WHERE Name = $name;`,
-  },
-  armor: {
-    import: `SELECT * FROM Item WHERE CATEGORY='Armor';`,
-    update: `UPDATE Item SET JSON = $data WHERE Name = $name;`,
-  },
-  weapons: {
-    import: `SELECT * FROM Item WHERE CATEGORY='Weapon';`,
-    update: `UPDATE Item SET JSON = $data WHERE Name = $name;`,
-  },
-  implements: {
-    import: `SELECT * FROM Item WHERE CATEGORY='Implement';`,
-    update: `UPDATE Item SET JSON = $data WHERE Name = $name;`,
   },
 };
 
@@ -225,4 +262,4 @@ db.each(sqlStatements.powers.import, (err, row) => {
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 await wait(2000);
 let data = JSON.stringify(powers);
-fs.writeFileSync("powersOutput.json", data);
+fs.writeFileSync("newpowersOutput.json", data);

@@ -14,7 +14,7 @@ for (let j = 0; j < magic_weapons.length; j++) {
         cWeaponKeywords.push(weaponGroup[key].toLowerCase());
       }
     }
-
+    
     cWeaponKeywords.push(weaponTypes[combined.data.weaponType].toLowerCase());
     let { group } = magicWeapon;
     let groupstr = group.toLowerCase();
